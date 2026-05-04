@@ -638,6 +638,19 @@ def internal_error(error):
 def unprocessable_entity(error):
     return jsonify({'error': f'Unprocessable entity: {str(error)}'}), 422
 
+# JWT Error handlers
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({'error': 'Token has expired'}), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    return jsonify({'error': f'Invalid token: {error}'}), 401
+
+@jwt.unauthorized_loader
+def missing_token_callback(error):
+    return jsonify({'error': f'Missing token: {error}'}), 401
+
 # ==================== INIT DATABASE ====================
 
 with app.app_context():
