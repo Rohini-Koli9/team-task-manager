@@ -180,6 +180,8 @@ def register():
 def login():
     data = request.get_json()
     
+    print(f"JWT_SECRET_KEY (first 20 chars): {app.config.get('JWT_SECRET_KEY', 'NOT SET')[:20]}...")
+    
     if not data.get('email') or not data.get('password'):
         return jsonify({'error': 'Email and password are required'}), 400
     
@@ -189,6 +191,7 @@ def login():
         return jsonify({'error': 'Invalid credentials'}), 401
     
     access_token = create_access_token(identity=user.id)
+    print(f"Token created for user {user.id}: {access_token[:30]}...")
     
     return jsonify({
         'message': 'Login successful',
@@ -553,8 +556,10 @@ def delete_task(task_id):
 @app.route('/api/dashboard', methods=['GET'])
 @jwt_required()
 def get_dashboard():
+    print(f"DASHBOARD - JWT_SECRET_KEY: {os.environ.get('JWT_SECRET_KEY', 'NOT SET')[:20]}...")
     try:
         user_id = get_jwt_identity()
+        print(f"DASHBOARD - User ID from token: {user_id}")
         
         # Get user's project IDs
         memberships = ProjectMember.query.filter_by(user_id=user_id).all()
@@ -641,15 +646,23 @@ def unprocessable_entity(error):
 # JWT Error handlers
 @jwt.expired_token_loader
 def expired_token_callback(jwt_header, jwt_payload):
+    print(f"JWT EXPIRED: {jwt_payload}")
     return jsonify({'error': 'Token has expired'}), 401
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
+    print(f"JWT INVALID: {error}")
     return jsonify({'error': f'Invalid token: {error}'}), 401
 
 @jwt.unauthorized_loader
 def missing_token_callback(error):
+    print(f"JWT MISSING: {error}")
     return jsonify({'error': f'Missing token: {error}'}), 401
+
+@jwt.user_lookup_error_loader
+def user_lookup_error_callback(jwt_header, jwt_payload):
+    print(f"JWT USER LOOKUP FAILED: identity={jwt_payload.get('sub')}")
+    return jsonify({'error': 'User not found'}), 422
 
 # ==================== INIT DATABASE ====================
 
