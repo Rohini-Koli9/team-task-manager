@@ -632,7 +632,11 @@ def not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     db.session.rollback()
-    return jsonify({'error': 'Internal server error'}), 500
+    return jsonify({'error': f'Internal server error: {str(error)}'}), 500
+
+@app.errorhandler(422)
+def unprocessable_entity(error):
+    return jsonify({'error': f'Unprocessable entity: {str(error)}'}), 422
 
 # ==================== INIT DATABASE ====================
 
