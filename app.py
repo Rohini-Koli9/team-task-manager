@@ -196,57 +196,73 @@ def get_current_user():
 @app.route('/api/projects', methods=['GET'])
 @jwt_required()
 def get_projects():
-    user_id = get_jwt_identity()
-    
-    # Get projects where user is a member
-    member_projects = ProjectMember.query.filter_by(user_id=user_id).all()
-    project_ids = [mp.project_id for mp in member_projects]
-    
-    projects = Project.query.filter(Project.id.in_(project_ids)).all()
-    
-    result = []
-    for project in projects:
-        p_dict = project.to_dict()
-        # Get user's role in this project
-        membership = ProjectMember.query.filter_by(project_id=project.id, user_id=user_id).first()
-        p_dict['my_role'] = membership.role if membership else 'member'
-        p_dict['member_count'] = len(project.members)
-        result.append(p_dict)
-    
-    return jsonify({'projects': result}), 200
+    try:
+        user_id = get_jwt_identity()
+        
+        # Get projects where user is a member
+        member_projects = ProjectMember.query.filter_by(user_id=user_id).all()
+        project_ids = [mp.project_id for mp in member_projects]
+        
+        if not project_ids:
+            return jsonify({'projects': []}), 200
+        
+        projects = Project.query.filter(Project.id.in_(project_ids)).all()
+        
+        result = []
+        for project in projects:
+            p_dict = project.to_dict()
+            # Get user's role in this project
+            membership = ProjectMember.query.filter_by(project_id=project.id, user_id=user_id).first()
+            p_dict['my_role'] = membership.role if membership else 'member'
+            p_dict['member_count'] = len(project.members)
+            result.append(p_dict)
+        
+        return jsonify({'projects': result}), 200
+    except Exception as e:
+        import traceback
+        print(f"GET PROJECTS ERROR: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/projects', methods=['POST'])
 @jwt_required()
 def create_project():
-    user_id = get_jwt_identity()
-    data = request.get_json()
-    
-    if not data.get('name'):
-        return jsonify({'error': 'Project name is required'}), 400
-    
-    # Create project
-    project = Project(
-        name=data['name'],
-        description=data.get('description', ''),
-        created_by=user_id
-    )
-    
-    db.session.add(project)
-    db.session.flush()  # Get project.id
-    
-    # Add creator as admin
-    member = ProjectMember(
-        project_id=project.id,
-        user_id=user_id,
-        role='admin'
-    )
-    db.session.add(member)
-    db.session.commit()
-    
-    return jsonify({
-        'message': 'Project created successfully',
-        'project': project.to_dict()
-    }), 201
+    try:
+        user_id = get_jwt_identity()
+        data = request.get_json()
+        
+        if not data.get('name'):
+            return jsonify({'error': 'Project name is required'}), 400
+        
+        # Create project
+        project = Project(
+            name=data['name'],
+            description=data.get('description', ''),
+            created_by=user_id
+        )
+        
+        db.session.add(project)
+        db.session.flush()  # Get project.id
+        
+        # Add creator as admin
+        member = ProjectMember(
+            project_id=project.id,
+            user_id=user_id,
+            role='admin'
+        )
+        db.session.add(member)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Project created successfully',
+            'project': project.to_dict()
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        print(f"CREATE PROJECT ERROR: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/projects/<int:project_id>', methods=['GET'])
 @jwt_required()
