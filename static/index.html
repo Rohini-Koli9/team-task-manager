@@ -467,8 +467,12 @@
                 ...options.headers
             };
             
+            console.log(`API Call: ${options.method || 'GET'} ${endpoint}`);
+            console.log(`Token exists: ${!!token}`);
+            
             if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
+                console.log(`Sending with token: ${token.substring(0, 20)}...`);
             }
             
             try {
@@ -477,10 +481,14 @@
                     headers
                 });
                 
+                console.log(`Response: ${response.status} ${response.statusText}`);
+                
                 const data = await response.json().catch(() => null);
                 
                 if (!response.ok) {
+                    console.error('Response error:', data);
                     if (response.status === 401) {
+                        console.log('401 detected - logging out');
                         logout();
                         return null;
                     }
@@ -513,17 +521,25 @@
         }
         
         async function register(name, email, password) {
+            console.log('Register called with:', { name, email });
             const data = await api('/auth/register', {
                 method: 'POST',
                 body: JSON.stringify({ name, email, password })
             });
             
-            if (data) {
+            console.log('Register response:', data);
+            
+            if (data && data.token) {
+                console.log('Token received:', data.token.substring(0, 20) + '...');
                 token = data.token;
                 currentUser = data.user;
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(currentUser));
+                console.log('Token saved to localStorage');
+                console.log('Calling renderApp...');
                 renderApp();
+            } else {
+                console.error('No token in response:', data);
             }
             
             return data;
