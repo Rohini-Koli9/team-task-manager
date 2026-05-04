@@ -521,59 +521,65 @@ def delete_task(task_id):
 @app.route('/api/dashboard', methods=['GET'])
 @jwt_required()
 def get_dashboard():
-    user_id = get_jwt_identity()
-    
-    # Get user's project IDs
-    memberships = ProjectMember.query.filter_by(user_id=user_id).all()
-    project_ids = [m.project_id for m in memberships]
-    
-    if not project_ids:
+    try:
+        user_id = get_jwt_identity()
+        
+        # Get user's project IDs
+        memberships = ProjectMember.query.filter_by(user_id=user_id).all()
+        project_ids = [m.project_id for m in memberships]
+        
+        if not project_ids:
+            return jsonify({
+                'stats': {
+                    'total_projects': 0,
+                    'total_tasks': 0,
+                    'pending_tasks': 0,
+                    'in_progress_tasks': 0,
+                    'completed_tasks': 0,
+                    'overdue_tasks': 0,
+                    'tasks_assigned_to_me': 0
+                },
+                'recent_tasks': [],
+                'overdue_tasks': []
+            }), 200
+        
+        # Calculate stats
+        all_tasks = Task.query.filter(Task.project_id.in_(project_ids)).all()
+        
+        total_tasks = len(all_tasks)
+        pending = sum(1 for t in all_tasks if t.status == Task.STATUS_PENDING)
+        in_progress = sum(1 for t in all_tasks if t.status == Task.STATUS_IN_PROGRESS)
+        completed = sum(1 for t in all_tasks if t.status == Task.STATUS_COMPLETED)
+        overdue = sum(1 for t in all_tasks if t.due_date and t.due_date < datetime.utcnow() and t.status != Task.STATUS_COMPLETED)
+        my_tasks = sum(1 for t in all_tasks if t.assigned_to == user_id)
+        
+        # Recent tasks (last 10)
+        recent_tasks = Task.query.filter(
+            Task.project_id.in_(project_ids)
+        ).order_by(Task.created_at.desc()).limit(10).all()
+        
+        # Overdue tasks list
+        overdue_tasks_list = [t for t in all_tasks if t.due_date and t.due_date < datetime.utcnow() and t.status != Task.STATUS_COMPLETED]
+        overdue_tasks_list.sort(key=lambda x: x.due_date)
+        
         return jsonify({
             'stats': {
-                'total_projects': 0,
-                'total_tasks': 0,
-                'pending_tasks': 0,
-                'in_progress_tasks': 0,
-                'completed_tasks': 0,
-                'overdue_tasks': 0,
-                'tasks_assigned_to_me': 0
+                'total_projects': len(project_ids),
+                'total_tasks': total_tasks,
+                'pending_tasks': pending,
+                'in_progress_tasks': in_progress,
+                'completed_tasks': completed,
+                'overdue_tasks': overdue,
+                'tasks_assigned_to_me': my_tasks
             },
-            'recent_tasks': [],
-            'overdue_tasks': []
+            'recent_tasks': [t.to_dict() for t in recent_tasks],
+            'overdue_tasks': [t.to_dict() for t in overdue_tasks_list[:10]]
         }), 200
-    
-    # Calculate stats
-    all_tasks = Task.query.filter(Task.project_id.in_(project_ids)).all()
-    
-    total_tasks = len(all_tasks)
-    pending = sum(1 for t in all_tasks if t.status == Task.STATUS_PENDING)
-    in_progress = sum(1 for t in all_tasks if t.status == Task.STATUS_IN_PROGRESS)
-    completed = sum(1 for t in all_tasks if t.status == Task.STATUS_COMPLETED)
-    overdue = sum(1 for t in all_tasks if t.due_date and t.due_date < datetime.utcnow() and t.status != Task.STATUS_COMPLETED)
-    my_tasks = sum(1 for t in all_tasks if t.assigned_to == user_id)
-    
-    # Recent tasks (last 10)
-    recent_tasks = Task.query.filter(
-        Task.project_id.in_(project_ids)
-    ).order_by(Task.created_at.desc()).limit(10).all()
-    
-    # Overdue tasks list
-    overdue_tasks_list = [t for t in all_tasks if t.due_date and t.due_date < datetime.utcnow() and t.status != Task.STATUS_COMPLETED]
-    overdue_tasks_list.sort(key=lambda x: x.due_date)
-    
-    return jsonify({
-        'stats': {
-            'total_projects': len(project_ids),
-            'total_tasks': total_tasks,
-            'pending_tasks': pending,
-            'in_progress_tasks': in_progress,
-            'completed_tasks': completed,
-            'overdue_tasks': overdue,
-            'tasks_assigned_to_me': my_tasks
-        },
-        'recent_tasks': [t.to_dict() for t in recent_tasks],
-        'overdue_tasks': [t.to_dict() for t in overdue_tasks_list[:10]]
-    }), 200
+    except Exception as e:
+        import traceback
+        print(f"Dashboard error: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({'error': 'Failed to load dashboard'}), 500
 
 # ==================== HEALTH CHECK ====================
 
