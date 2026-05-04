@@ -69,10 +69,3 @@ A full-stack web application for managing team projects and tasks with role-base
    - `DATABASE_URL` - Railway PostgreSQL URL (optional, SQLite is default)
 4. Deploy!
 
-## Demo Video
-
-[Link to your demo video]
-
-## Author
-
-Built for Ethara AI Software Engineer Assessment
