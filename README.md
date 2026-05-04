@@ -2,7 +2,7 @@
 
 A full-stack web application for managing team projects and tasks with role-based access control.
 
-**Live URL:** [Your Railway URL here]
+**Live URL:** team-task-manager-ethara-ai.up.railway.app
 
 ## Features
 
