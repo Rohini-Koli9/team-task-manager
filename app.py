@@ -12,10 +12,19 @@ load_dotenv()
 app = Flask(__name__)
 
 # Database configuration - use PostgreSQL on Railway, SQLite locally
+print("=== ENVIRONMENT VARIABLES ===")
+for key, value in os.environ.items():
+    if 'database' in key.lower() or 'postgres' in key.lower() or 'sql' in key.lower():
+        # Mask password for security
+        masked = value[:30] + '...' if len(value) > 30 else value
+        print(f"{key}: {masked}")
+print("===========================")
+
 database_url = os.getenv('DATABASE_URL')
 if database_url and database_url.startswith('postgres://'):
     # Railway uses postgres:// but SQLAlchemy requires postgresql://
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    print(f"Converted postgres:// to postgresql://")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///teamtask.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
