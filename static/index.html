@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Task Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        
+        h2 {
+            color: #444;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+        
+        h3 {
+            color: #555;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #16a34a;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .stat-card {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        
+        .project-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .project-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+        
+        .project-card h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .project-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-admin {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .badge-member {
+            background: #e0e7ff;
+            color: #4f46e5;
+        }
+        
+        .badge-pending {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .badge-in-progress {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .badge-completed {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .badge-high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .badge-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .badge-low {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .badge-overdue {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .task-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .task-title {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .task-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        
+        .task-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .error {
+            color: #dc2626;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        
+        .success {
+            color: #059669;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .member-item:last-child {
+            border-bottom: none;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .nav-tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            font-weight: 500;
+        }
+        
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .nav-tab:hover {
+            color: #667eea;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+        
+        .empty-state h3 {
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .auth-container {
+            max-width: 400px;
+            margin: 60px auto;
+        }
+        
+        .auth-container .card {
+            text-align: center;
+        }
+        
+        .auth-container h1 {
+            margin-bottom: 24px;
+        }
+        
+        .auth-toggle {
+            margin-top: 16px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .auth-toggle a {
+            color: #667eea;
+            cursor: pointer;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    
+    <script>
+        // API Base URL - Change this for production
+        const API_URL = window.location.origin.includes('localhost') ? 'http://localhost:5000/api' : '/api';
+        
+        // State
+        let token = localStorage.getItem('token');
+        let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+        let currentView = 'dashboard';
+        let currentProjectId = null;
+        
+        // DOM
+        const app = document.getElementById('app');
+        
+        // API Helper
+        async function api(endpoint, options = {}) {
+            const url = `${API_URL}${endpoint}`;
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    headers
+                });
+                
+                const data = await response.json().catch(() => null);
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        logout();
+                        return null;
+                    }
+                    throw new Error(data?.error || `HTTP ${response.status}`);
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+        
+        // Auth Functions
+        async function login(email, password) {
+            const data = await api('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password })
+            });
+            
+            if (data) {
+                token = data.token;
+                currentUser = data.user;
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                renderApp();
+            }
+            
+            return data;
+        }
+        
+        async function register(name, email, password) {
+            const data = await api('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({ name, email, password })
+            });
+            
+            if (data) {
+                token = data.token;
+                currentUser = data.user;
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                renderApp();
+            }
+            
+            return data;
+        }
+        
+        function logout() {
+            token = null;
+            currentUser = null;
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            renderApp();
+        }
+        
+        // Views
+        function renderAuth() {
+            let isLogin = true;
+            
+            const toggleForm = () => {
+                isLogin = !isLogin;
+                updateForm();
+            };
+            
+            const updateForm = () => {
+                const authForm = document.getElementById('authForm');
+                authForm.innerHTML = `
+                    ${!isLogin ? `
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" id="name" required>
+                        </div>
+                    ` : ''}
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" required minlength="6">
+                    </div>
+                    <div id="authError" class="error"></div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        ${isLogin ? 'Login' : 'Register'}
+                    </button>
+                `;
+                
+                document.getElementById('authToggle').innerHTML = `
+                    ${isLogin ? "Don't have an account? " : "Already have an account? "}
+                    <a onclick="window.toggleAuth()">${isLogin ? 'Register' : 'Login'}</a>
+                `;
+                
+                authForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const errorDiv = document.getElementById('authError');
+                    errorDiv.textContent = '';
+                    
+                    try {
+                        const email = document.getElementById('email').value;
+                        const password = document.getElementById('password').value;
+                        
+                        if (isLogin) {
+                            await login(email, password);
+                        } else {
+                            const name = document.getElementById('name').value;
+                            await register(name, email, password);
+                        }
+                    } catch (error) {
+                        errorDiv.textContent = error.message;
+                    }
+                };
+            };
+            
+            window.toggleAuth = toggleForm;
+            
+            return `
+                <div class="auth-container">
+                    <div class="card">
+                        <h1>Team Task Manager</h1>
+                        <form id="authForm"></form>
+                        <div id="authToggle" class="auth-toggle"></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderDashboard() {
+            return `
+                <div class="container">
+                    <div class="header">
+                        <h1>Dashboard</h1>
+                        <div class="user-info">
+                            <span>${currentUser.name}</span>
+                            <div class="user-avatar">${currentUser.name.charAt(0).toUpperCase()}</div>
+                            <button class="btn btn-secondary btn-small" onclick="logout()">Logout</button>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-tabs">
+                        <div class="nav-tab active" onclick="showView('dashboard')">Dashboard</div>
+                        <div class="nav-tab" onclick="showView('projects')">Projects</div>
+                    </div>
+                    
+                    <div id="dashboardContent">
+                        <div class="card">
+                            <h2>Loading...</h2>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        async function loadDashboardData() {
+            try {
+                const data = await api('/dashboard');
+                const container = document.getElementById('dashboardContent');
+                
+                if (!data) return;
+                
+                container.innerHTML = `
+                    <div class="grid" style="margin-bottom: 20px;">
+                        <div class="stat-card">
+                            <div class="stat-number">${data.stats.total_projects}</div>
+                            <div class="stat-label">Projects</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${data.stats.total_tasks}</div>
+                            <div class="stat-label">Total Tasks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${data.stats.pending_tasks}</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${data.stats.in_progress_tasks}</div>
+                            <div class="stat-label">In Progress</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${data.stats.completed_tasks}</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" style="color: #dc2626;">${data.stats.overdue_tasks}</div>
+                            <div class="stat-label">Overdue</div>
+                        </div>
+                    </div>
+                    
+                    ${data.overdue_tasks.length > 0 ? `
+                        <div class="card">
+                            <h2>Overdue Tasks</h2>
+                            ${data.overdue_tasks.map(task => renderTaskItem(task)).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="card">
+                        <h2>Recent Tasks</h2>
+                        ${data.recent_tasks.length > 0 
+                            ? data.recent_tasks.map(task => renderTaskItem(task)).join('')
+                            : '<div class="empty-state">No tasks yet</div>'
+                        }
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('dashboardContent').innerHTML = `
+                    <div class="card">
+                        <div class="error">Failed to load dashboard data</div>
+                    </div>
+                `;
+            }
+        }
+        
+        function renderProjects() {
+            return `
+                <div class="container">
+                    <div class="header">
+                        <h1>My Projects</h1>
+                        <div class="user-info">
+                            <span>${currentUser.name}</span>
+                            <div class="user-avatar">${currentUser.name.charAt(0).toUpperCase()}</div>
+                            <button class="btn btn-secondary btn-small" onclick="logout()">Logout</button>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-tabs">
+                        <div class="nav-tab" onclick="showView('dashboard')">Dashboard</div>
+                        <div class="nav-tab active" onclick="showView('projects')">Projects</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="header" style="margin-bottom: 16px;">
+                            <h2>All Projects</h2>
+                            <button class="btn btn-primary" onclick="showCreateProjectModal()">Create Project</button>
+                        </div>
+                        <div id="projectsList">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        async function loadProjects() {
+            try {
+                const data = await api('/projects');
+                const container = document.getElementById('projectsList');
+                
+                if (!data || !data.projects) {
+                    container.innerHTML = '<div class="error">Failed to load projects</div>';
+                    return;
+                }
+                
+                if (data.projects.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No projects yet</h3>
+                            <p>Create your first project to get started</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = `
+                    <div class="grid">
+                        ${data.projects.map(p => `
+                            <div class="project-card" onclick="showProject(${p.id})">
+                                <h3>${p.name}</h3>
+                                <p>${p.description || 'No description'}</p>
+                                <div class="project-meta">
+                                    <span class="badge badge-${p.my_role}">${p.my_role}</span>
+                                    <span>${p.member_count} members</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('projectsList').innerHTML = `
+                    <div class="error">Failed to load projects: ${error.message}</div>
+                `;
+            }
+        }
+        
+        async function showProject(projectId) {
+            currentProjectId = projectId;
+            currentView = 'project';
+            
+            try {
+                const data = await api(`/projects/${projectId}`);
+                if (!data) return;
+                
+                const project = data.project;
+                const isAdmin = project.my_role === 'admin';
+                
+                app.innerHTML = `
+                    <div class="container">
+                        <div class="header">
+                            <div>
+                                <h1>${project.name}</h1>
+                                <p style="color: #666; margin-top: 4px;">${project.description || 'No description'}</p>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                ${isAdmin ? `
+                                    <button class="btn btn-secondary btn-small" onclick="showEditProjectModal()">Edit</button>
+                                    <button class="btn btn-danger btn-small" onclick="deleteProject()">Delete</button>
+                                ` : ''}
+                                <button class="btn btn-secondary btn-small" onclick="showView('projects')">Back</button>
+                                <button class="btn btn-secondary btn-small" onclick="logout()">Logout</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="header" style="margin-bottom: 16px;">
+                                <h2>Tasks</h2>
+                                <button class="btn btn-primary" onclick="showCreateTaskModal()">Add Task</button>
+                            </div>
+                            <div id="tasksList">
+                                ${project.tasks.length > 0 
+                                    ? project.tasks.map(t => renderTaskItem(t, true)).join('')
+                                    : '<div class="empty-state">No tasks yet</div>'
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="header" style="margin-bottom: 16px;">
+                                <h2>Team Members</h2>
+                                ${isAdmin ? `<button class="btn btn-primary" onclick="showAddMemberModal()">Add Member</button>` : ''}
+                            </div>
+                            <div id="membersList">
+                                ${project.members.map(m => `
+                                    <div class="member-item">
+                                        <div>
+                                            <strong>${m.user.name}</strong>
+                                            <span style="color: #888; margin-left: 8px;">${m.user.email}</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span class="badge badge-${m.role}">${m.role}</span>
+                                            ${isAdmin && m.role !== 'admin' ? `
+                                                <button class="btn btn-danger btn-small" onclick="removeMember(${m.id})">Remove</button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                app.innerHTML = `<div class="container"><div class="error">Failed to load project: ${error.message}</div></div>`;
+            }
+        }
+        
+        function renderTaskItem(task, showActions = false) {
+            const isOverdue = task.is_overdue;
+            
+            return `
+                <div class="task-item">
+                    <div class="task-header">
+                        <span class="task-title">${task.title}</span>
+                        <div>
+                            <span class="badge badge-${task.status}">${task.status.replace('_', ' ')}</span>
+                            <span class="badge badge-${task.priority}">${task.priority}</span>
+                            ${isOverdue ? '<span class="badge badge-overdue">OVERDUE</span>' : ''}
+                        </div>
+                    </div>
+                    ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+                    <div class="task-meta">
+                        ${task.assignee ? `<span>Assigned to: ${task.assignee.name}</span>` : '<span>Unassigned</span>'}
+                        ${task.due_date ? `<span>Due: ${new Date(task.due_date).toLocaleDateString()}</span>` : ''}
+                    </div>
+                    ${showActions ? `
+                        <div class="task-actions">
+                            <select class="btn btn-small btn-secondary" onchange="updateTaskStatus(${task.id}, this.value)">
+                                <option value="">Change Status</option>
+                                <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="in_progress" ${task.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
+                            </select>
+                            <button class="btn btn-danger btn-small" onclick="deleteTask(${task.id})">Delete</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        // Modal Functions
+        function showModal(title, content, onSubmit) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2>${title}</h2>
+                        <button class="close-btn" onclick="closeModal()">&times;</button>
+                    </div>
+                    <form id="modalForm">
+                        ${content}
+                        <div id="modalError" class="error"></div>
+                        <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px;">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            document.getElementById('modalForm').onsubmit = async (e) => {
+                e.preventDefault();
+                const errorDiv = document.getElementById('modalError');
+                errorDiv.textContent = '';
+                
+                try {
+                    await onSubmit(e);
+                    closeModal();
+                } catch (error) {
+                    errorDiv.textContent = error.message;
+                }
+            };
+            
+            window.closeModal = () => modal.remove();
+        }
+        
+        function showCreateProjectModal() {
+            showModal('Create Project', `
+                <div class="form-group">
+                    <label>Project Name *</label>
+                    <input type="text" id="projectName" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="projectDescription" rows="3"></textarea>
+                </div>
+            `, async () => {
+                const name = document.getElementById('projectName').value;
+                const description = document.getElementById('projectDescription').value;
+                
+                await api('/projects', {
+                    method: 'POST',
+                    body: JSON.stringify({ name, description })
+                });
+                
+                loadProjects();
+            });
+        }
+        
+        async function showEditProjectModal() {
+            const data = await api(`/projects/${currentProjectId}`);
+            const project = data.project;
+            
+            showModal('Edit Project', `
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <input type="text" id="projectName" value="${project.name}" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="projectDescription" rows="3">${project.description || ''}</textarea>
+                </div>
+            `, async () => {
+                const name = document.getElementById('projectName').value;
+                const description = document.getElementById('projectDescription').value;
+                
+                await api(`/projects/${currentProjectId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ name, description })
+                });
+                
+                showProject(currentProjectId);
+            });
+        }
+        
+        async function deleteProject() {
+            if (!confirm('Are you sure you want to delete this project?')) return;
+            
+            await api(`/projects/${currentProjectId}`, { method: 'DELETE' });
+            showView('projects');
+        }
+        
+        async function showCreateTaskModal() {
+            const data = await api(`/projects/${currentProjectId}`);
+            const members = data.project.members;
+            
+            showModal('Create Task', `
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="taskDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select id="taskPriority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Assign To</label>
+                    <select id="taskAssignee">
+                        <option value="">Unassigned</option>
+                        ${members.map(m => `<option value="${m.user.id}">${m.user.name}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="datetime-local" id="taskDueDate">
+                </div>
+            `, async () => {
+                const title = document.getElementById('taskTitle').value;
+                const description = document.getElementById('taskDescription').value;
+                const priority = document.getElementById('taskPriority').value;
+                const assigned_to = document.getElementById('taskAssignee').value || null;
+                const due_date = document.getElementById('taskDueDate').value || null;
+                
+                await api(`/projects/${currentProjectId}/tasks`, {
+                    method: 'POST',
+                    body: JSON.stringify({ title, description, priority, assigned_to, due_date })
+                });
+                
+                showProject(currentProjectId);
+            });
+        }
+        
+        async function updateTaskStatus(taskId, status) {
+            if (!status) return;
+            
+            await api(`/tasks/${taskId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ status })
+            });
+            
+            showProject(currentProjectId);
+        }
+        
+        async function deleteTask(taskId) {
+            if (!confirm('Delete this task?')) return;
+            
+            await api(`/tasks/${taskId}`, { method: 'DELETE' });
+            showProject(currentProjectId);
+        }
+        
+        function showAddMemberModal() {
+            showModal('Add Team Member', `
+                <div class="form-group">
+                    <label>User Email *</label>
+                    <input type="email" id="memberEmail" required placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="memberRole">
+                        <option value="member">Member</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+            `, async () => {
+                const email = document.getElementById('memberEmail').value;
+                const role = document.getElementById('memberRole').value;
+                
+                await api(`/projects/${currentProjectId}/members`, {
+                    method: 'POST',
+                    body: JSON.stringify({ email, role })
+                });
+                
+                showProject(currentProjectId);
+            });
+        }
+        
+        async function removeMember(memberId) {
+            if (!confirm('Remove this member?')) return;
+            
+            await api(`/projects/${currentProjectId}/members/${memberId}`, { method: 'DELETE' });
+            showProject(currentProjectId);
+        }
+        
+        // Navigation
+        function showView(view) {
+            currentView = view;
+            renderApp();
+        }
+        
+        function renderApp() {
+            if (!token) {
+                app.innerHTML = renderAuth();
+                document.getElementById('authForm').innerHTML = '';
+                window.toggleAuth();
+            } else if (currentView === 'dashboard') {
+                app.innerHTML = renderDashboard();
+                loadDashboardData();
+            } else if (currentView === 'projects') {
+                app.innerHTML = renderProjects();
+                loadProjects();
+            }
+        }
+        
+        // Initialize
+        renderApp();
+    </script>
+</body>
+</html>
