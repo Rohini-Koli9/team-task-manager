@@ -167,8 +167,8 @@ def register():
     db.session.add(user)
     db.session.commit()
     
-    # Create token
-    access_token = create_access_token(identity=user.id)
+    # Create token (must be string for JWT)
+    access_token = create_access_token(identity=str(user.id))
     
     return jsonify({
         'message': 'User registered successfully',
@@ -190,7 +190,7 @@ def login():
     if not user or not check_password_hash(user.password, data['password']):
         return jsonify({'error': 'Invalid credentials'}), 401
     
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
     print(f"Token created for user {user.id}: {access_token[:30]}...")
     
     return jsonify({
@@ -202,7 +202,7 @@ def login():
 @app.route('/api/auth/me', methods=['GET'])
 @jwt_required()
 def get_current_user():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     
     if not user:
@@ -216,7 +216,7 @@ def get_current_user():
 @jwt_required()
 def get_projects():
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         
         # Get projects where user is a member
         member_projects = ProjectMember.query.filter_by(user_id=user_id).all()
@@ -247,7 +247,7 @@ def get_projects():
 @jwt_required()
 def create_project():
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         data = request.get_json()
         
         if not data.get('name'):
@@ -558,7 +558,7 @@ def delete_task(task_id):
 def get_dashboard():
     print(f"DASHBOARD - JWT_SECRET_KEY: {os.environ.get('JWT_SECRET_KEY', 'NOT SET')[:20]}...")
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         print(f"DASHBOARD - User ID from token: {user_id}")
         
         # Get user's project IDs
