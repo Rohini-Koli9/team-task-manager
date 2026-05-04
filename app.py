@@ -628,7 +628,14 @@ def internal_error(error):
 # ==================== INIT DATABASE ====================
 
 with app.app_context():
-    db.create_all()
+    try:
+        print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI'][:50]}...")
+        db.create_all()
+        print("Database tables created successfully!")
+    except Exception as e:
+        import traceback
+        print(f"DATABASE INIT ERROR: {str(e)}")
+        print(traceback.format_exc())
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
